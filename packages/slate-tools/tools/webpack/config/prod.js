@@ -20,6 +20,8 @@ const packageJson = require('../../../package.json');
 const getChunkName = require('../get-chunk-name');
 const {templateFiles, layoutFiles} = require('../entrypoints');
 
+const extractStyles = new ExtractTextPlugin('[name].scss');
+
 function eslintLoader() {
   if (!fs.existsSync(config.paths.eslint.rc)) {
     return [];
@@ -74,7 +76,7 @@ module.exports = merge(
         {
           test: /\.s[ac]ss$/,
           exclude: commonExcludes(),
-          use: ExtractTextPlugin.extract({
+          use: extractStyles.extract({
             fallback: 'style-loader',
             use: [
               {loader: '@shopify/slate-cssvar-loader'},
@@ -98,6 +100,8 @@ module.exports = merge(
     },
 
     plugins: [
+      extractStyles,
+
       new CleanWebpackPlugin(['dist'], {
         root: config.paths.root,
       }),
@@ -109,9 +113,6 @@ module.exports = merge(
       new UglifyJSPlugin({
         sourceMap: true,
       }),
-
-      // extract css into its own file
-      new ExtractTextPlugin('styles.css.liquid'),
 
       // generate dist/layout/*.liquid for all layout files with correct paths to assets
 
